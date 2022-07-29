@@ -10,5 +10,5 @@
 
 1. 用户系统 user
 2. 文章系统 article
-3. 分类系统 type
+3. 分类系统 article_type
 4. 评论系统 comment

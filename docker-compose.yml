@@ -1,0 +1,52 @@
+version: "3"
+name: go-zero-blog
+services:
+  redis:
+    image: redis:7
+    restart: always
+    command: redis-server --appendonly yes --requirepass 123456 --bind 127.0.0.1
+    volumes:
+      - go-zero-blog-redis:/data
+    ports:
+      - 6379:6379
+    networks:
+      - go-zero-blog
+  mysql:
+    image: mysql:8
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "go-zero-blog"
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - go-zero-blog-mysql:/var/lib/mysql
+      # - ./conf.d/mysql/:/etc/mysql/conf.d
+      # - ./init.d/mysql/:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+    networks:
+      - go-zero-blog
+  # etcd:
+  #   image: bitnami/etcd:3.5
+  #   restart: always
+  #   environment:
+  #     - ETCD_NAME=etcd
+  #     - ALLOW_NONE_AUTHENTICATION=yes
+  #   volumes:
+  #     - go-zero-blog-etcd:/bitnami/etcd
+  #   ports:
+  #     - 2379:2379
+  #   networks:
+  #     - go-zero-blog
+networks:
+  go-zero-blog:
+    name: go-zero-blog
+    driver: bridge
+volumes:
+  go-zero-blog-redis:
+  go-zero-blog-mysql:
+  # go-zero-blog-etcd:
+

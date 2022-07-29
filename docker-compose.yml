@@ -1,5 +1,4 @@
-version: "3"
-name: go-zero-blog
+version: "3.3"
 services:
   redis:
     image: redis:7

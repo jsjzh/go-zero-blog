@@ -1,3 +1,12 @@
 Name: blog-api
 Host: 0.0.0.0
 Port: 8888
+Mysql:
+  DataSource: root:@tcp(0.0.0.0:3306)/go-zero-blo?charset=utf8mb4&parseTime=true&loc=local
+CacheRedis:
+  - Host: 0.0.0.0:6379
+    Pass: "123456"
+    Type: node
+Auth:
+  AccessSecret: 54E27799-92FF-51B5-EEFD-20944724114C
+  AccessExpire: 604800

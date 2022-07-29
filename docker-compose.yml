@@ -48,4 +48,3 @@ volumes:
   go-zero-blog-redis:
   go-zero-blog-mysql:
   # go-zero-blog-etcd:
-

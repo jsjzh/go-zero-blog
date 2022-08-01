@@ -5,8 +5,13 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `content` LONGTEXT NOT NULL COMMENT '内容',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted_at` DATETIME DEFAULT NULL COMMENT '删除时间',
+  `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '0:未删除 1:已删除',
   -- CONSTRAINT fk_comment_user FOREIGN KEY (`user_id`) REFERENCES user(`id`),
   -- CONSTRAINT fk_comment_article FOREIGN KEY (`article_id`) REFERENCES article(`id`),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '评论表';
+
+INSERT INTO
+  `comment` (user_id, article_id, content)
+values
+  (1, 1, "hello world");

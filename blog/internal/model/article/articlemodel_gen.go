@@ -36,13 +36,13 @@ type (
 	}
 
 	Article struct {
-		Id            int64        `db:"id"`              // primary key
-		Title         string       `db:"title"`           // 文章标题
-		Content       string       `db:"content"`         // 文章内容
-		ArticleTypeId int64        `db:"article_type_id"` // 文章类型
-		CreatedAt     time.Time    `db:"created_at"`      // 创建时间
-		UpdatedAt     time.Time    `db:"updated_at"`      // 更新时间
-		DeletedAt     sql.NullTime `db:"deleted_at"`      // 删除时间
+		Id            int64     `db:"id"`              // primary key
+		Title         string    `db:"title"`           // 文章标题
+		Content       string    `db:"content"`         // 文章内容
+		ArticleTypeId int64     `db:"article_type_id"` // 文章类型
+		CreatedAt     time.Time `db:"created_at"`      // 创建时间
+		UpdatedAt     time.Time `db:"updated_at"`      // 更新时间
+		IsDeleted     int64     `db:"is_deleted"`      // 0:未删除 1:已删除
 	}
 )
 
@@ -54,13 +54,13 @@ func newArticleModel(conn sqlx.SqlConn) *defaultArticleModel {
 }
 
 func (m *defaultArticleModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("update %s set is_deleted = 1 where `id` = ? and is_deleted != 1", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultArticleModel) FindOne(ctx context.Context, id int64) (*Article, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", articleRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `id` = ? and is_deleted != 1 limit 1", articleRows, m.table)
 	var resp Article
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -75,13 +75,13 @@ func (m *defaultArticleModel) FindOne(ctx context.Context, id int64) (*Article, 
 
 func (m *defaultArticleModel) Insert(ctx context.Context, data *Article) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, articleRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Content, data.ArticleTypeId, data.CreatedAt, data.UpdatedAt, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Content, data.ArticleTypeId, data.CreatedAt, data.UpdatedAt, data.IsDeleted)
 	return ret, err
 }
 
 func (m *defaultArticleModel) Update(ctx context.Context, data *Article) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, articleRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Content, data.ArticleTypeId, data.CreatedAt, data.UpdatedAt, data.DeletedAt, data.Id)
+	query := fmt.Sprintf("update %s set %s where `id` = ? and is_deleted != 1", m.table, articleRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Content, data.ArticleTypeId, data.CreatedAt, data.UpdatedAt, data.IsDeleted, data.Id)
 	return err
 }
 

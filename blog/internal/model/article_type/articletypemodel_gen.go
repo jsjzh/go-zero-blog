@@ -37,12 +37,12 @@ type (
 	}
 
 	ArticleType struct {
-		Id        int64        `db:"id"`         // id
-		Code      string       `db:"code"`       // primary key
-		Name      string       `db:"name"`       // 类型
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间
+		Id        int64     `db:"id"`         // id
+		Code      string    `db:"code"`       // primary key
+		Name      string    `db:"name"`       // 类型
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		IsDeleted int64     `db:"is_deleted"` // 0:未删除 1:已删除
 	}
 )
 
@@ -54,13 +54,13 @@ func newArticleTypeModel(conn sqlx.SqlConn) *defaultArticleTypeModel {
 }
 
 func (m *defaultArticleTypeModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("update %s set is_deleted = 1 where `id` = ? and is_deleted != 1", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultArticleTypeModel) FindOne(ctx context.Context, id int64) (*ArticleType, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", articleTypeRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `id` = ? and is_deleted != 1 limit 1", articleTypeRows, m.table)
 	var resp ArticleType
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -75,7 +75,7 @@ func (m *defaultArticleTypeModel) FindOne(ctx context.Context, id int64) (*Artic
 
 func (m *defaultArticleTypeModel) FindOneByCode(ctx context.Context, code string) (*ArticleType, error) {
 	var resp ArticleType
-	query := fmt.Sprintf("select %s from %s where `code` = ? limit 1", articleTypeRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `code` = ? and is_deleted != 1 limit 1", articleTypeRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, code)
 	switch err {
 	case nil:
@@ -89,13 +89,13 @@ func (m *defaultArticleTypeModel) FindOneByCode(ctx context.Context, code string
 
 func (m *defaultArticleTypeModel) Insert(ctx context.Context, data *ArticleType) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, articleTypeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.Name, data.CreatedAt, data.UpdatedAt, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Code, data.Name, data.CreatedAt, data.UpdatedAt, data.IsDeleted)
 	return ret, err
 }
 
 func (m *defaultArticleTypeModel) Update(ctx context.Context, newData *ArticleType) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, articleTypeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.Name, newData.CreatedAt, newData.UpdatedAt, newData.DeletedAt, newData.Id)
+	query := fmt.Sprintf("update %s set %s where `id` = ? and is_deleted != 1", m.table, articleTypeRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Code, newData.Name, newData.CreatedAt, newData.UpdatedAt, newData.IsDeleted, newData.Id)
 	return err
 }
 

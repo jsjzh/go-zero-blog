@@ -38,17 +38,17 @@ type (
 	}
 
 	User struct {
-		Id        int64        `db:"id"`         // primary key
-		Email     string       `db:"email"`      // 用户邮箱
-		Phone     string       `db:"phone"`      // 用户手机
-		Password  string       `db:"password"`   // 用户密码
-		Nickname  string       `db:"nickname"`   // 用户昵称
-		Gender    int64        `db:"gender"`     // 0:未公开 1:女 2:男
-		Avatar    string       `db:"avatar"`     // 用户头像
-		Role      int64        `db:"role"`       // 0:用户 1:管理员
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间
+		Id        int64     `db:"id"`         // primary key
+		Email     string    `db:"email"`      // 用户邮箱
+		Phone     string    `db:"phone"`      // 用户手机
+		Password  string    `db:"password"`   // 用户密码
+		Nickname  string    `db:"nickname"`   // 用户昵称
+		Gender    int64     `db:"gender"`     // 0:未公开 1:女 2:男
+		Avatar    string    `db:"avatar"`     // 用户头像
+		Role      int64     `db:"role"`       // 0:用户 1:管理员
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		IsDeleted int64     `db:"is_deleted"` // 0:未删除 1:已删除
 	}
 )
 
@@ -60,13 +60,13 @@ func newUserModel(conn sqlx.SqlConn) *defaultUserModel {
 }
 
 func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("update %s set is_deleted = 1 where `id` = ? and is_deleted != 1", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `id` = ? and is_deleted != 1 limit 1", userRows, m.table)
 	var resp User
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -81,7 +81,7 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 
 func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*User, error) {
 	var resp User
-	query := fmt.Sprintf("select %s from %s where `email` = ? limit 1", userRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `email` = ? and is_deleted != 1 limit 1", userRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, email)
 	switch err {
 	case nil:
@@ -95,7 +95,7 @@ func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*U
 
 func (m *defaultUserModel) FindOneByPhone(ctx context.Context, phone string) (*User, error) {
 	var resp User
-	query := fmt.Sprintf("select %s from %s where `phone` = ? limit 1", userRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `phone` = ? and is_deleted != 1 limit 1", userRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, phone)
 	switch err {
 	case nil:
@@ -109,13 +109,13 @@ func (m *defaultUserModel) FindOneByPhone(ctx context.Context, phone string) (*U
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Email, data.Phone, data.Password, data.Nickname, data.Gender, data.Avatar, data.Role, data.CreatedAt, data.UpdatedAt, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Email, data.Phone, data.Password, data.Nickname, data.Gender, data.Avatar, data.Role, data.CreatedAt, data.UpdatedAt, data.IsDeleted)
 	return ret, err
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Email, newData.Phone, newData.Password, newData.Nickname, newData.Gender, newData.Avatar, newData.Role, newData.CreatedAt, newData.UpdatedAt, newData.DeletedAt, newData.Id)
+	query := fmt.Sprintf("update %s set %s where `id` = ? and is_deleted != 1", m.table, userRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Email, newData.Phone, newData.Password, newData.Nickname, newData.Gender, newData.Avatar, newData.Role, newData.CreatedAt, newData.UpdatedAt, newData.IsDeleted, newData.Id)
 	return err
 }
 

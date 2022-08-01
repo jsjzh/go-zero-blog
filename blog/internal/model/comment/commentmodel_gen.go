@@ -36,13 +36,13 @@ type (
 	}
 
 	Comment struct {
-		Id        int64        `db:"id"`         // primary key
-		UserId    int64        `db:"user_id"`    // 关联 user
-		ArticleId int64        `db:"article_id"` // 关联 article
-		Content   string       `db:"content"`    // 内容
-		CreatedAt time.Time    `db:"created_at"` // 创建时间
-		UpdatedAt time.Time    `db:"updated_at"` // 更新时间
-		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间
+		Id        int64     `db:"id"`         // primary key
+		UserId    int64     `db:"user_id"`    // 关联 user
+		ArticleId int64     `db:"article_id"` // 关联 article
+		Content   string    `db:"content"`    // 内容
+		CreatedAt time.Time `db:"created_at"` // 创建时间
+		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		IsDeleted int64     `db:"is_deleted"` // 0:未删除 1:已删除
 	}
 )
 
@@ -54,13 +54,13 @@ func newCommentModel(conn sqlx.SqlConn) *defaultCommentModel {
 }
 
 func (m *defaultCommentModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("update %s set is_deleted = 1 where `id` = ? and is_deleted != 1", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultCommentModel) FindOne(ctx context.Context, id int64) (*Comment, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", commentRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `id` = ? and is_deleted != 1 limit 1", commentRows, m.table)
 	var resp Comment
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -75,13 +75,13 @@ func (m *defaultCommentModel) FindOne(ctx context.Context, id int64) (*Comment, 
 
 func (m *defaultCommentModel) Insert(ctx context.Context, data *Comment) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, commentRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.ArticleId, data.Content, data.CreatedAt, data.UpdatedAt, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.ArticleId, data.Content, data.CreatedAt, data.UpdatedAt, data.IsDeleted)
 	return ret, err
 }
 
 func (m *defaultCommentModel) Update(ctx context.Context, data *Comment) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, commentRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.ArticleId, data.Content, data.CreatedAt, data.UpdatedAt, data.DeletedAt, data.Id)
+	query := fmt.Sprintf("update %s set %s where `id` = ? and is_deleted != 1", m.table, commentRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.ArticleId, data.Content, data.CreatedAt, data.UpdatedAt, data.IsDeleted, data.Id)
 	return err
 }
 

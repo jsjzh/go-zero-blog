@@ -14,24 +14,3 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `uk_phone` (`phone`),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '用户信息表';
-
-INSERT INTO
-  `user` (
-    email,
-    phone,
-    password,
-    nickname,
-    gender,
-    avatar,
-    role
-  )
-values
-  (
-    "jinzhehao@souche.com",
-    "18368094601",
-    "123456",
-    "king",
-    2,
-    "url",
-    1
-  );

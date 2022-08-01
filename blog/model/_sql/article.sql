@@ -9,8 +9,3 @@ CREATE TABLE IF NOT EXISTS `article` (
   -- CONSTRAINT fk_article_article_type FOREIGN KEY (`article_type_id`) REFERENCES article_type(`id`),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '文章表';
-
-INSERT INTO
-  `article` (title, content, article_type_id)
-values
-  ("hello", "hello world content", 1);

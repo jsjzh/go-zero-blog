@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	user "go-zero-blog/blog/internal/handler/user"
 	"go-zero-blog/blog/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -14,9 +15,35 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/from/:name",
-				Handler: BlogHandler(serverCtx),
+				Path:    "/health",
+				Handler: HealthHandler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/user",
+				Handler: user.PostUserHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/user",
+				Handler: user.DeleteUserHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/user",
+				Handler: user.PutUserHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/user",
+				Handler: user.GetUserHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/blog/v1"),
 	)
 }

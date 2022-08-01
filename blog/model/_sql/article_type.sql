@@ -8,8 +8,3 @@ CREATE TABLE IF NOT EXISTS `article_type` (
   UNIQUE KEY `uk_code` (`code`),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '文章类型表';
-
-INSERT INTO
-  `article_type` (code, name)
-values
-  ("frontend", "frontend");

@@ -10,8 +10,3 @@ CREATE TABLE IF NOT EXISTS `comment` (
   -- CONSTRAINT fk_comment_article FOREIGN KEY (`article_id`) REFERENCES article(`id`),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '评论表';
-
-INSERT INTO
-  `comment` (user_id, article_id, content)
-values
-  (1, 1, "hello world");

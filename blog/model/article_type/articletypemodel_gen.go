@@ -18,8 +18,8 @@ import (
 var (
 	articleTypeFieldNames          = builder.RawFieldNames(&ArticleType{})
 	articleTypeRows                = strings.Join(articleTypeFieldNames, ",")
-	articleTypeRowsExpectAutoSet   = strings.Join(stringx.Remove(articleTypeFieldNames, "`id`", "`create_time`", "`update_time`", "`create_at`", "`update_at`"), ",")
-	articleTypeRowsWithPlaceHolder = strings.Join(stringx.Remove(articleTypeFieldNames, "`id`", "`create_time`", "`update_time`", "`create_at`", "`update_at`"), "=?,") + "=?"
+	articleTypeRowsExpectAutoSet   = strings.Join(stringx.Remove(articleTypeFieldNames, "`id`", "`create_time`", "`update_time`", "`created_at`", "`updated_at`", "`is_deleted`"), ",")
+	articleTypeRowsWithPlaceHolder = strings.Join(stringx.Remove(articleTypeFieldNames, "`id`", "`create_time`", "`update_time`", "`created_at`", "`updated_at`", "`is_deleted`"), "=?,") + "=?"
 )
 
 type (

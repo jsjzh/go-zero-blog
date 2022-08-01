@@ -2,7 +2,7 @@ Name: blog-api
 Host: 0.0.0.0
 Port: 8888
 Mysql:
-  DataSource: root:@tcp(0.0.0.0:3306)/go-zero-blo?charset=utf8mb4&parseTime=true&loc=local
+  DataSource: root:@tcp(0.0.0.0:3306)/go-zero-blog?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 CacheRedis:
   - Host: 0.0.0.0:6379
     Pass: "123456"

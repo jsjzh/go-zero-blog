@@ -1,12 +1,99 @@
-type Request {
-	Name string `path:"name,options=you|me"`
-}
-
-type Response {
-	Message string `json:"message"`
-}
+type (
+	HealthResp {
+		Message string `json:"message"`
+	}
+)
 
 service blog-api {
-	@handler BlogHandler
-	get /from/:name(Request) returns (Response)
+	@handler HealthHandler
+	get /health returns (HealthResp)
+}
+
+type (
+	PostUserReq {
+		Email    string `json:"email"`    // 用户邮箱
+		Phone    string `json:"phone"`    // 用户手机
+		Password string `json:"password"` // 用户密码
+		Nickname string `json:"nickname"` // 用户昵称
+		Gender   int64  `json:"gender"`   // 0:未公开 1:女 2:男
+		Avatar   string `json:"avatar"`   // 用户头像
+		Role     int64  `json:"role"`     // 0:用户 1:管理员
+	}
+	PostUserResp {
+		Id        int64  `json:"id"`        // primary key
+		Email     string `json:"email"`     // 用户邮箱
+		Phone     string `json:"phone"`     // 用户手机
+		Password  string `json:"password"`  // 用户密码
+		Nickname  string `json:"nickname"`  // 用户昵称
+		Gender    int64  `json:"gender"`    // 0:未公开 1:女 2:男
+		Avatar    string `json:"avatar"`    // 用户头像
+		Role      int64  `json:"role"`      // 0:用户 1:管理员
+		CreatedAt string `json:"createdAt"` // 创建时间
+		UpdatedAt string `json:"updatedAt"` // 更新时间
+	}
+
+	DeleteUserReq {
+		Id int64 `json:"id"`
+	}
+	DeleteUserResp {
+		Status bool `json:"status"` // 是否删除成功
+	}
+
+	PutUserReq {
+		Id       int64  `json:"id"`
+		Email    string `json:"email"`    // 用户邮箱
+		Phone    string `json:"phone"`    // 用户手机
+		Password string `json:"password"` // 用户密码
+		Nickname string `json:"nickname"` // 用户昵称
+		Gender   int64  `json:"gender"`   // 0:未公开 1:女 2:男
+		Avatar   string `json:"avatar"`   // 用户头像
+		Role     int64  `json:"role"`     // 0:用户 1:管理员
+	}
+	PutUserResp {
+		Id        int64  `json:"id"`        // primary key
+		Email     string `json:"email"`     // 用户邮箱
+		Phone     string `json:"phone"`     // 用户手机
+		Password  string `json:"password"`  // 用户密码
+		Nickname  string `json:"nickname"`  // 用户昵称
+		Gender    int64  `json:"gender"`    // 0:未公开 1:女 2:男
+		Avatar    string `json:"avatar"`    // 用户头像
+		Role      int64  `json:"role"`      // 0:用户 1:管理员
+		CreatedAt string `json:"createdAt"` // 创建时间
+		UpdatedAt string `json:"updatedAt"` // 更新时间
+	}
+
+	GetUserReq {
+		Id int64 `form:"id"`
+	}
+
+	GetUserResp {
+		Id        int64  `json:"id"`        // primary key
+		Email     string `json:"email"`     // 用户邮箱
+		Phone     string `json:"phone"`     // 用户手机
+		Password  string `json:"password"`  // 用户密码
+		Nickname  string `json:"nickname"`  // 用户昵称
+		Gender    int64  `json:"gender"`    // 0:未公开 1:女 2:男
+		Avatar    string `json:"avatar"`    // 用户头像
+		Role      int64  `json:"role"`      // 0:用户 1:管理员
+		CreatedAt string `json:"createdAt"` // 创建时间
+		UpdatedAt string `json:"updatedAt"` // 更新时间
+	}
+)
+
+@server(
+	prefix: blog/v1
+	group: user
+)
+service blog-api {
+	@handler PostUserHandler
+	post /user(PostUserReq) returns (PostUserResp)
+	
+	@handler DeleteUserHandler
+	delete /user(DeleteUserReq) returns (DeleteUserResp)
+	
+	@handler PutUserHandler
+	put /user(PutUserReq) returns (PutUserResp)
+	
+	@handler GetUserHandler
+	get /user(GetUserReq) returns (GetUserResp)
 }
